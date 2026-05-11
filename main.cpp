@@ -2,49 +2,124 @@
 #include "boss_data.h"
 #include "game_data.h"
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 
 int main() {
     GameData data = createGameData();
     BossData bosses = createBossData();
 
-while (data.level <= 5) {
-    std::cout<<"----------level: "<<data.level<<"----------"<< std::endl;
-    if (data.level > 0) {
-        int boss_hp, boss_damage, coins_earn;
-        if (data.level == 1) {
-            boss_hp = bosses.hp_mini_boss;
-            boss_damage = bosses.boss_damage_mini;
-            coins_earn = bosses.coins_earn_mini;
-        } else {
-            boss_hp = bosses.hp_dual_boss;
-            boss_damage = bosses.boss_damage_dual;
-            coins_earn = bosses.coins_earn_dual;
+    while (data.level <= 5) {
+        std::cout << "-----------day: " << data.day << "-----------" << std::endl;
+        std::cout << "----------level: " << data.level << "----------" << std::endl;
+
+        if (data.level > 0) {
+            if (data.level == 1) {
+                int boss_hp = bosses.hp_mini_boss;
+                int boss_damage = bosses.boss_damage_mini;
+                int coins_earn = bosses.coins_earn_mini;
+
+                std::cout << "Fighting mini boss with HP: " << boss_hp << std::endl;
+                while (data.hp_player > 0 && boss_hp > 0) {
+                    boss_hp -= data.damage_player;
+                    std::cout << "Player attacks! Boss HP: " << boss_hp << std::endl;
+                    if (boss_hp <= 0) {
+                        break;
+                    }
+
+                    data.hp_player -= boss_damage;
+                    std::cout << "Boss attacks! Player HP: " << data.hp_player << std::endl;
+                }
+
+                if (data.hp_player > 0) {
+                    data.player_coins += coins_earn;
+                    std::cout << "Won! Earned " << coins_earn << " coins." << std::endl;
+                } else {
+                    std::cout << "Lost the game!" << std::endl;
+                    break;
+                }
+            } else {
+                int magnetron_hp = bosses.hp_magnetron;
+                int polarisurge_hp = bosses.hp_polarisurge;
+                const int magnetron_max_hp = bosses.hp_magnetron;
+                const int polarisurge_max_hp = bosses.hp_polarisurge;
+                const int coins_earn = bosses.coins_earn_duo;
+
+                auto applyDuoRevives = [&]() {
+                    if (magnetron_hp > 0 &&
+                        magnetron_hp < magnetron_max_hp / 2 &&
+                        polarisurge_hp > (polarisurge_max_hp * 80) / 100) {
+                        magnetron_hp = magnetron_max_hp;
+                        std::cout << "Magnetron se obnovil na max HP." << std::endl;
+                    }
+
+                    if (polarisurge_hp > 0 &&
+                        polarisurge_hp < polarisurge_max_hp / 5 &&
+                        magnetron_hp >= magnetron_max_hp / 2) {
+                        polarisurge_hp = polarisurge_max_hp;
+                        std::cout << "Polarisurge se obnovil na max HP." << std::endl;
+                    }
+                };
+
+                std::cout << "Duo boss: Magnetron + Polarisurge" << std::endl;
+                while (data.hp_player > 0 && (magnetron_hp > 0 || polarisurge_hp > 0)) {
+                    if (magnetron_hp > 0) {
+                        magnetron_hp -= data.damage_player;
+                        if (magnetron_hp < 0) {
+                            magnetron_hp = 0;
+                        }
+                        std::cout << "Player attacks Magnetron! Magnetron HP: " << magnetron_hp << std::endl;
+                    } else if (polarisurge_hp > 0) {
+                        polarisurge_hp -= data.damage_player;
+                        if (polarisurge_hp < 0) {
+                            polarisurge_hp = 0;
+                        }
+                        std::cout << "Player attacks Polarisurge! Polarisurge HP: " << polarisurge_hp << std::endl;
+                    }
+
+                    applyDuoRevives();
+
+                    if (magnetron_hp <= 0 && polarisurge_hp <= 0) {
+                        break;
+                    }
+
+                    int magnetron_damage = 0;
+                    int polarisurge_damage = 0;
+
+                    if (magnetron_hp > 0) {
+                        magnetron_damage = (polarisurge_max_hp - polarisurge_hp) / 2;
+                    }
+                    if (polarisurge_hp > 0) {
+                        polarisurge_damage = (magnetron_max_hp - magnetron_hp) * 2;
+                    }
+
+                    data.hp_player -= magnetron_damage + polarisurge_damage;
+
+                    std::cout << "Magnetron deals " << magnetron_damage << " damage." << std::endl;
+                    std::cout << "Polarisurge deals " << polarisurge_damage << " damage." << std::endl;
+                    std::cout << "Player HP: " << data.hp_player << std::endl;
+                    std::cout << "Magnetron HP: " << magnetron_hp
+                              << ", Polarisurge HP: " << polarisurge_hp << std::endl;
+                }
+
+                if (data.hp_player > 0) {
+                    data.player_coins += coins_earn;
+                    std::cout << "Won the duo boss fight! Earned " << coins_earn << " coins." << std::endl;
+                } else {
+                    std::cout << "Lost the game!" << std::endl;
+                    break;
+                }
+            }
         }
-        std::cout << "Fighting boss with HP: " << boss_hp << std::endl;
-        while (data.hp_player > 0 && boss_hp > 0) {
-            boss_hp -= data.damage_player;
-            std::cout << "Player attacks! Boss HP: " << boss_hp << std::endl;
-            if (boss_hp <= 0) break;
-            data.hp_player -= boss_damage;
-            std::cout << "Boss attacks! Player HP: " << data.hp_player << std::endl;
-        }
-        if (data.hp_player > 0) {
-            data.player_coins += coins_earn;
-            std::cout << "Won! Earned " << coins_earn << " coins." << std::endl;
-        } else {
-            std::cout << "Lost the game!" << std::endl;
-            break;
-        }
-    }
-    // village
-    std::cout<<"hp_player: "<<data.hp_player<< std::endl;
-    std::cout<<"damage_player: "<<data.damage_player<< std::endl;
-    std::cout<<"coins: "<<data.player_coins<< std::endl;
+
+        // village
+        std::cout << "hp_player: " << data.hp_player << std::endl;
+        std::cout << "damage_player: " << data.damage_player << std::endl;
+        std::cout << "coins: " << data.player_coins << std::endl;
     std::cout << "Welcome to village!" << std::endl;
     std::cout << "1. Buy knife (level " << data.knife_level + 1 << ")" << std::endl;
     std::cout << "2. Buy armor (level " << data.armor_level + 1 << ")" << std::endl;
     std::cout << "3. Continue to next level" << std::endl;
+    std::cout << "4. Stay in village" << std::endl;
+
     int choice;
     std::cin >> choice;
     if (choice == 1) {
@@ -81,10 +156,16 @@ while (data.level <= 5) {
         }
     } else if (choice == 3) {
         // continue
-    } else {
+        data.level ++;
+        std::cout << "Continuing to next level..." << std::endl;
+    } else if (choice == 4) {
+        data.hp_player += 10;
+        std::cout << "Stayed in village, HP increased by 10! HP now " << data.hp_player << std::endl;
+        data.level = 0;
+    }else {
         std::cout << "Invalid choice, continuing..." << std::endl;
     }
-    data.level++;
-}
+        data.day++;
+    }
     return 0;
 }

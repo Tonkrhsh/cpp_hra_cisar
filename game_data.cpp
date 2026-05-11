@@ -23,13 +23,17 @@ GameData createGameData() {
     data.knife2_damage = 20;
     data.knife3_damage = 50;
     data.knife4_damage = 100;
+    data.knife5_damage = 200;
 
     data.knife1_cost = 10;
-    data.knife2_cost = 100;
-    data.knife3_cost = 1000;
-    data.knife4_cost = 10000;
+    data.knife2_cost = 20;
+    data.knife3_cost = 30;
+    data.knife4_cost = 40;
+    data.knife5_cost = 50;
+
 
     data.level = 0;
+    data.day = 1;
 
     return data;
 }

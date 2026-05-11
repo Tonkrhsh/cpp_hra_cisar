@@ -3,14 +3,13 @@
 
 struct BossData {
     int hp_mini_boss;
-    int hp_dual_boss;
-    int hp_dual_boss2;
+    int hp_magnetron;
+    int hp_polarisurge;
 
     int boss_damage_mini;
-    int boss_damage_dual;
 
     int coins_earn_mini;
-    int coins_earn_dual;
+    int coins_earn_duo;
 };
 
 BossData createBossData();
