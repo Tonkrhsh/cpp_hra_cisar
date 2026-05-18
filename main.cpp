@@ -2,6 +2,79 @@
 #include "boss_data.h"
 #include "game_data.h"
 
+bool fightDualBosses(GameData& data, const BossData& bosses) {
+    int magnetron_hp = bosses.hp_magnetron;
+    int polarisurge_hp = bosses.hp_polarisurge;
+    const int magnetron_max_hp = bosses.hp_magnetron;
+    const int polarisurge_max_hp = bosses.hp_polarisurge;
+    const int coins_earn = bosses.coins_earn_duo;
+
+    auto applyDuoRevives = [&]() {
+        if (magnetron_hp > 0 &&
+            magnetron_hp < magnetron_max_hp / 2 &&
+            polarisurge_hp > (polarisurge_max_hp * 80) / 100) {
+            magnetron_hp = magnetron_max_hp;
+            std::cout << "Magnetron se obnovil na max HP." << std::endl;
+        }
+
+        if (polarisurge_hp > 0 &&
+            polarisurge_hp < polarisurge_max_hp / 5 &&
+            magnetron_hp >= magnetron_max_hp / 2) {
+            polarisurge_hp = polarisurge_max_hp;
+            std::cout << "Polarisurge se obnovil na max HP." << std::endl;
+        }
+    };
+
+    std::cout << "Duo boss: Magnetron + Polarisurge" << std::endl;
+    while (data.hp_player > 0 && (magnetron_hp > 0 || polarisurge_hp > 0)) {
+        if (magnetron_hp > 0) {
+            magnetron_hp -= data.damage_player;
+            if (magnetron_hp < 0) {
+                magnetron_hp = 0;
+            }
+            std::cout << "Player attacks Magnetron! Magnetron HP: " << magnetron_hp << std::endl;
+        } else if (polarisurge_hp > 0) {
+            polarisurge_hp -= data.damage_player;
+            if (polarisurge_hp < 0) {
+                polarisurge_hp = 0;
+            }
+            std::cout << "Player attacks Polarisurge! Polarisurge HP: " << polarisurge_hp << std::endl;
+        }
+
+        applyDuoRevives();
+
+        if (magnetron_hp <= 0 && polarisurge_hp <= 0) {
+            break;
+        }
+
+        int magnetron_damage = 0;
+        int polarisurge_damage = 0;
+
+        if (magnetron_hp > 0) {
+            magnetron_damage = (polarisurge_max_hp - polarisurge_hp) / 2;
+        }
+        if (polarisurge_hp > 0) {
+            polarisurge_damage = (magnetron_max_hp - magnetron_hp) * 2;
+        }
+
+        data.hp_player -= magnetron_damage + polarisurge_damage;
+
+        std::cout << "Magnetron deals " << magnetron_damage << " damage." << std::endl;
+        std::cout << "Polarisurge deals " << polarisurge_damage << " damage." << std::endl;
+        std::cout << "Player HP: " << data.hp_player << std::endl;
+        std::cout << "Magnetron HP: " << magnetron_hp
+                  << ", Polarisurge HP: " << polarisurge_hp << std::endl;
+    }
+
+    if (data.hp_player > 0) {
+        data.player_coins += coins_earn;
+        std::cout << "Won the duo boss fight! Earned " << coins_earn << " coins." << std::endl;
+        return true;
+    }
+
+    std::cout << "Lost the game!" << std::endl;
+    return false;
+}
 
 int main() {
     GameData data = createGameData();
@@ -37,74 +110,7 @@ int main() {
                     break;
                 }
             } else {
-                int magnetron_hp = bosses.hp_magnetron;
-                int polarisurge_hp = bosses.hp_polarisurge;
-                const int magnetron_max_hp = bosses.hp_magnetron;
-                const int polarisurge_max_hp = bosses.hp_polarisurge;
-                const int coins_earn = bosses.coins_earn_duo;
-
-                auto applyDuoRevives = [&]() {
-                    if (magnetron_hp > 0 &&
-                        magnetron_hp < magnetron_max_hp / 2 &&
-                        polarisurge_hp > (polarisurge_max_hp * 80) / 100) {
-                        magnetron_hp = magnetron_max_hp;
-                        std::cout << "Magnetron se obnovil na max HP." << std::endl;
-                    }
-
-                    if (polarisurge_hp > 0 &&
-                        polarisurge_hp < polarisurge_max_hp / 5 &&
-                        magnetron_hp >= magnetron_max_hp / 2) {
-                        polarisurge_hp = polarisurge_max_hp;
-                        std::cout << "Polarisurge se obnovil na max HP." << std::endl;
-                    }
-                };
-
-                std::cout << "Duo boss: Magnetron + Polarisurge" << std::endl;
-                while (data.hp_player > 0 && (magnetron_hp > 0 || polarisurge_hp > 0)) {
-                    if (magnetron_hp > 0) {
-                        magnetron_hp -= data.damage_player;
-                        if (magnetron_hp < 0) {
-                            magnetron_hp = 0;
-                        }
-                        std::cout << "Player attacks Magnetron! Magnetron HP: " << magnetron_hp << std::endl;
-                    } else if (polarisurge_hp > 0) {
-                        polarisurge_hp -= data.damage_player;
-                        if (polarisurge_hp < 0) {
-                            polarisurge_hp = 0;
-                        }
-                        std::cout << "Player attacks Polarisurge! Polarisurge HP: " << polarisurge_hp << std::endl;
-                    }
-
-                    applyDuoRevives();
-
-                    if (magnetron_hp <= 0 && polarisurge_hp <= 0) {
-                        break;
-                    }
-
-                    int magnetron_damage = 0;
-                    int polarisurge_damage = 0;
-
-                    if (magnetron_hp > 0) {
-                        magnetron_damage = (polarisurge_max_hp - polarisurge_hp) / 2;
-                    }
-                    if (polarisurge_hp > 0) {
-                        polarisurge_damage = (magnetron_max_hp - magnetron_hp) * 2;
-                    }
-
-                    data.hp_player -= magnetron_damage + polarisurge_damage;
-
-                    std::cout << "Magnetron deals " << magnetron_damage << " damage." << std::endl;
-                    std::cout << "Polarisurge deals " << polarisurge_damage << " damage." << std::endl;
-                    std::cout << "Player HP: " << data.hp_player << std::endl;
-                    std::cout << "Magnetron HP: " << magnetron_hp
-                              << ", Polarisurge HP: " << polarisurge_hp << std::endl;
-                }
-
-                if (data.hp_player > 0) {
-                    data.player_coins += coins_earn;
-                    std::cout << "Won the duo boss fight! Earned " << coins_earn << " coins." << std::endl;
-                } else {
-                    std::cout << "Lost the game!" << std::endl;
+                if (!fightDualBosses(data, bosses)) {
                     break;
                 }
             }
