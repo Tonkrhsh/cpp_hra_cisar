@@ -7,4 +7,5 @@ add_executable(untitled1
         main.cpp
         boss_data.cpp
         game_data.cpp
+        enum_classy.cpp
 )
