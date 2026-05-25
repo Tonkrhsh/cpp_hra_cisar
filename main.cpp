@@ -1,9 +1,10 @@
 #include "boss_data.h"
+#include "enum_classy.h"
+
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <vector>
-#include "enum_classy.h"
 
 int main() {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));

@@ -71,7 +71,23 @@ void showEnemies(const std::vector<Enemy>& enemies) {
 }
 
 int chooseEnemyTarget(const std::vector<Enemy>& enemies) {
+    int alive_count = 0;
+    int last_alive_index = -1;
+
+    for (std::size_t i = 0; i < enemies.size(); ++i) {
+        if (isAlive(enemies[i])) {
+            alive_count++;
+            last_alive_index = static_cast<int>(i);
+        }
+    }
+
+    if (alive_count == 1) {
+        std::cout << "Cil je automaticky: " << enemies[last_alive_index].name << std::endl;
+        return last_alive_index;
+    }
+
     while (true) {
+        std::cout << "Vyber cil utoku:" << std::endl;
         showEnemies(enemies);
         int choice = readChoice(1, static_cast<int>(enemies.size()));
         if (isAlive(enemies[choice - 1])) {
